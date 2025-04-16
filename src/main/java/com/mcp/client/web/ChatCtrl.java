@@ -9,6 +9,7 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,21 +26,23 @@ public class ChatCtrl {
     @Resource
     private ChatClient chatClient;
 
-    // public ChatCtrl(ChatClient.Builder chatClientBuilder,
-    // ChatMemory chatMemory,
-    // ToolCallbackProvider tools) {
-    // this.chatClient = chatClientBuilder
-    // // .defaultAdvisors(new PromptChatMemoryAdvisor(chatMemory))
-    // // .defaultTools(dateTimeService2)
-    // .defaultTools(tools)
-    // .build();
-    // }
-
-    @PostMapping(value = "/ai/answer", produces = "application/json;charset=UTF-8")
+    @PostMapping(value = "/ai/answer", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> generate(@RequestBody String connect) {
+    	return chatClient.prompt(new Prompt(new SystemMessage("使用提供的工具"), new UserMessage(connect))).stream().content();
+    }
+    
+    @PostMapping(value = "/ai/web", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<String> generateWeb(@RequestBody String connect) {
         String answer = chatClient.prompt(new Prompt(new SystemMessage("使用提供的工具"), new UserMessage(connect))).call().content();
         System.out.println(answer);
-        Map<String, Object> map = Map.of("answer", answer);
         return Flux.just(answer);
+    }
+    
+    @PostMapping(value = "/ai/travel", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<String> travel(@RequestBody String connect) {
+        String answer = chatClient.prompt(new Prompt(new SystemMessage("可以通过获取城市的经纬度再获取它的天气情况"), new UserMessage(connect))).call().content();
+        System.out.println(answer);
+        return Flux.just(answer);
+//    	return chatClient.prompt(new Prompt(new SystemMessage("使用提供的工具"), new UserMessage(connect))).stream().content();
     }
 }

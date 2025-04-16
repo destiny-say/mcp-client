@@ -1,0 +1,37 @@
+server:
+  port: 9091
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  ai:
+    mcp:
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 30s
+        type: ASYNC # or SYNC
+        sse:
+          connections:
+            server1:
+              url: http://localhost:9090
+        toolcallback: 
+          enabled: false
+    openai:
+      api-key: sk-c9366d9760a542aabc8d1fef1d1beb58
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          model: deepseek-chat
+
+# 调试日志
+logging:
+  level:
+    io:
+      modelcontextprotocol:
+        client: DEBUG
+        spec: DEBUG
